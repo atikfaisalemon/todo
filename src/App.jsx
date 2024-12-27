@@ -4,95 +4,71 @@ import "./App.css";
 function App() {
   const [text, setText] = useState("");
   const [todoList, setTodoList] = useState([]);
+  // const [check, setCheck] = useState(false);
+  console.log(todoList);
 
-  const addTodo = (todo) => {
-    const isDuplicate = todoList.some((item) => item.title === todo.title);
-    console.log("isDuplicate", isDuplicate);
-    if (isDuplicate) {
-      console.log("Duplicated todo found!");
-      return;
-    } else {
-      setTodoList([...todoList, todo]);
-      setText("");
-    }
+  const addTodo = () => {
+    setTodoList([
+      ...todoList,
+      { title: text, isComplete: false, id: todoList.length + 1 },
+    ]);
+    setText("");
   };
 
-  const updateTodo = (todo) => {
-    const remainTODO = todoList.filter((item) => item.title !== todo.title);
-    setTodoList([...remainTODO, todo]);
+  const deleteTask = (id) => {
+    setTodoList(todoList.filter((todo) => todo.id !== id));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    addTodo({ title: text, check: false });
+  const isCheck = (id) => {
+    setTodoList((prvTodo) => {
+      return prvTodo.map((todo) => {
+        if (todo.id == id) {
+          return { ...todo, isComplete: !todo.isComplete };
+        }
+        return todo;
+      });
+    });
   };
 
-  console.log("list", todoList);
+  console.log(todoList);
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <form
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
+    <div>
+      <input
+        type="text"
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value);
+          // console.log(e.target.value);
         }}
-        onSubmit={handleSubmit}
-      >
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => {
-            const value = e.target.value;
-            setText(value);
-          }}
-        />
-        <button type="submit">Submit</button>
-      </form>
+      />
+      <button type="submit" onClick={addTodo}>
+        Submit
+      </button>
 
-      <ul
-        style={{
-          listStyle: "none",
-          padding: 0,
-        }}
-      >
-        {todoList
-          .sort((a, b) => a.check - b.check)
-          .map((todo, index) => (
-            <li
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
+      <ul>
+        {todoList.map((todo) => (
+          <li className="list-none flex flex-row gap-6 " key={todo.id}>
+            <input
+              type="checkbox"
+              name=""
+              id={todo.id}
+              value={todo.isComplete}
+              onChange={() => {
+                isCheck(todo.id);
               }}
-              key={index}
+            />
+
+            <span
+              style={{
+                textDecoration: todo.isComplete ? "line-through" : "none",
+              }}
             >
-              <input
-                type="checkbox"
-                name=""
-                id=""
-                checked={todo.check}
-                onChange={(e) => {
-                  const updatedTODO = {
-                    ...todo,
-                    check: e.target.checked,
-                  };
-                  updateTodo(updatedTODO);
-                }}
-              />
-              <div
-                style={todo.check ? { textDecorationLine: "line-through" } : {}}
-              >
-                {todo.title}
-              </div>
-            </li>
-          ))}
+              {todo.title}
+            </span>
+            <button onClick={() => deleteTask(todo.id)}>Delete</button>
+          </li>
+        ))}
       </ul>
     </div>
   );
